@@ -40,4 +40,4 @@ out/
 .kotlin
 
 ### Resources ###
-!**/src/main/resorces/application.yml
+./src/main/resources/application.yml
