@@ -1,5 +1,6 @@
 package org.kotlin.scheduler.commands
 
+import org.kotlin.scheduler.managers.CallBackData
 import org.kotlin.scheduler.managers.State
 import org.kotlin.scheduler.managers.StateManager
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,25 +19,25 @@ class Task: Command("/task", "поставить напоминалку") {
 
     override fun sendMessage(absSender: DefaultAbsSender, update: Update, state: State): State {
         val result = SendMessage()
-        val chatId = update.message.chatId
+        val chatId: Long?
+        if(update.hasMessage()) chatId = update.message.chatId
+        else chatId = update.callbackQuery.message.chatId
+
         val returnState : State
         result.chatId = chatId.toString()
 
         if(state == State.FIRST_ASK){
+            val markup: InlineKeyboardMarkup = createInlineKeyboard(CallBackData.SCHEDULED, CallBackData.TIMER)
             result.text = "можешь второй раз спросить"
+            result.replyMarkup = markup
             returnState = State.SECOND_ASK
         }
 
         else if(state == State.SECOND_ASK){
-            if(update.message.text.equals("allah")){
-                returnState = State.FIRST_ASK
-                result.text = "ты проебался броу"
-            }
 
-            else {
                 result.text = "так уж и быть, спроси третий раз"
                 returnState = State.THIRD_ASK
-            }
+
         }
 
         else{
@@ -55,13 +56,26 @@ class Task: Command("/task", "поставить напоминалку") {
 
 
 
-    private fun createInlineKeyboard(vararg data: String): InlineKeyboardMarkup{
-        for(e in data){
-            println(e)
+    private fun createInlineKeyboard(vararg data: CallBackData): InlineKeyboardMarkup{
+        val markup = InlineKeyboardMarkup()
+        print(data.size)
+        val listKeyboard = ArrayList<List<InlineKeyboardButton>>()
+        var index = 0
+        for(i in 0 until data.size){
+            listKeyboard.add(index, ArrayList<InlineKeyboardButton>())
+
+            val currentList: ArrayList<InlineKeyboardButton> = listKeyboard.get(index) as ArrayList<InlineKeyboardButton>
+            val currentButton = InlineKeyboardButton()
+            currentButton.text = data[i].toString()
+            currentButton.callbackData = data[i].toString().uppercase()
+
+            currentList.add(currentButton)
+            index++;
+
 
         }
-
+        markup.keyboard = listKeyboard
         print(data.size)
-        return InlineKeyboardMarkup()
+        return markup
     }
 }
