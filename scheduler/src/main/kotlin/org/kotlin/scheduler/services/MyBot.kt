@@ -3,20 +3,18 @@ package org.kotlin.scheduler.services
 import org.kotlin.scheduler.commands.Command
 import org.kotlin.scheduler.configurations.BotInfo
 import org.kotlin.scheduler.managers.CommandResolver
+import org.kotlin.scheduler.managers.State
 import org.kotlin.scheduler.managers.StateManager
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.objects.Update
 import java.util.Optional
-import java.util.concurrent.ConcurrentHashMap
 
 @Service
-class MyBot(@Autowired val info: BotInfo, val resolver: CommandResolver): TelegramLongPollingBot(){
+class MyBot(@Autowired val info: BotInfo, val resolver: CommandResolver, val stateManager: StateManager): TelegramLongPollingBot(){
 
 
-    val map = ConcurrentHashMap<Int, StateManager>()
 
 
 
@@ -33,11 +31,46 @@ class MyBot(@Autowired val info: BotInfo, val resolver: CommandResolver): Telegr
         val commandName : String = p0?.message?.text.toString()
         val commandOption : Optional<Command> = resolver.resolveCommand(commandName) as Optional<Command>
         if(commandOption.isPresent){
+
+
+            val state : Optional<State> = p0?.message?.chatId?.let { stateManager.getStateByChatId(it) } as Optional<State>
+
+            if(state.isEmpty) stateManager.addState(p0.message?.chatId!!, State.FIRST_ASK)
+
+            val currentState = stateManager.getStateByChatId(p0.message.chatId)?.get()
+
             val command : Command = commandOption.get()
-            p0?.let { command.sendMessage(this, it) }
+
+
+            if(stateManager.getCommandByChatId(p0.message.chatId).isEmpty) stateManager.addCommand(p0.message.chatId, command)
 
 
 
+
+
+
+            val nextState = p0.let { command.sendMessage(this, it, currentState!!) }
+
+            stateManager.addState(p0.message.chatId, nextState)
+
+        }
+
+        else{
+
+            val currentState: Optional<State> =p0?.message?.chatId.let { stateManager.getStateByChatId(it!!) } as Optional<State>
+            val currentOptionalOfCommand = p0?.message?.chatId?.let { stateManager.getCommandByChatId(it) } as Optional<Command>
+
+            if(currentState.isEmpty || currentOptionalOfCommand.isEmpty) return
+
+
+            val command: Command = currentOptionalOfCommand.get()
+            val nextState = command.sendMessage(this, p0, currentState.get())
+
+
+            if(nextState == State.FIRST_ASK) stateManager.removeFromCommands(p0.message.chatId)
+
+
+            stateManager.addState(p0.message.chatId, nextState)
         }
 
 
