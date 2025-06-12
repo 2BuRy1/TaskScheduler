@@ -2,6 +2,6 @@ services:
   redis:
     image: redis:8.0.2
     ports:
-      - "6037:6037"
+      - "6379:6379"
     environment:
       REDIS_PASSWORD: "mypass"

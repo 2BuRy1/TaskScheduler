@@ -24,13 +24,10 @@ class Task(@Autowired private val taskStates: List<TaskState>): Command("/task",
 
 
     override fun sendMessage(absSender: DefaultAbsSender, update: Update, state: State): State {
-        print(state)
         val taskState = taskStates.find { it.supportedState == state }
-        println(taskState)
         val transition = taskState?.handle(update, state, absSender)
 
         absSender.execute(transition?.sendMessage)
-        println(transition?.nextState)
         return transition!!.nextState
 
 

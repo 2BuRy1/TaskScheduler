@@ -39,7 +39,7 @@ class FirstState(override val supportedState: State = State.FIRST_ASK) : TaskSta
             val currentList: ArrayList<InlineKeyboardButton> = listKeyboard.get(index) as ArrayList<InlineKeyboardButton>
             val currentButton = InlineKeyboardButton()
             currentButton.text = data[i].toString()
-            currentButton.callbackData = data[i].toString().uppercase()
+            currentButton.callbackData = data[i].name.uppercase()
 
             currentList.add(currentButton)
             index++;

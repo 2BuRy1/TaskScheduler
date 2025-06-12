@@ -1,4 +1,4 @@
-package org.kotlin.scheduler.configurations
+package org.kotlin.scheduler.repositories
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.redis.core.RedisTemplate
@@ -13,7 +13,7 @@ class RedisRepository(@Autowired val redisTemplate: RedisTemplate<String, String
     }
 
     fun getData(key:String): String{
-      return  redisTemplate.opsForValue().get(key) as String
+      return  redisTemplate.opsForValue().getAndDelete(key) as String
     }
 
 
