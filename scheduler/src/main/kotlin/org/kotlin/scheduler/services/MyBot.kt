@@ -58,6 +58,8 @@ class MyBot(@Autowired val info: BotInfo, val resolver: CommandResolver, val sta
 
         }
 
+
+
         else if(p0!!.hasCallbackQuery()){
             val callBack = p0.callbackQuery
 
@@ -72,8 +74,22 @@ class MyBot(@Autowired val info: BotInfo, val resolver: CommandResolver, val sta
 
 
             if(nextState == State.FIRST_ASK) stateManager.removeFromCommands(p0.message.chatId)
+            else if(nextState == State.LAST_ASK){
+                //TODO build task data from redis and schedule tasks
+            }
+
+
 
             nextState.let { stateManager.addState(callBack.message.chatId, it) }
+        }
+
+        else if(commandOption.isEmpty){
+
+            println(commandName)
+
+
+
+
         }
 
 

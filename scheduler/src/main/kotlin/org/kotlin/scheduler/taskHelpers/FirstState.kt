@@ -30,7 +30,6 @@ class FirstState(override val supportedState: State = State.FIRST_ASK) : TaskSta
 
     private fun createInlineKeyboard(vararg data: CallBackData): InlineKeyboardMarkup {
         val markup = InlineKeyboardMarkup()
-        print(data.size)
         val listKeyboard = ArrayList<List<InlineKeyboardButton>>()
         var index = 0
         for(i in 0 until data.size){
@@ -47,7 +46,6 @@ class FirstState(override val supportedState: State = State.FIRST_ASK) : TaskSta
 
         }
         markup.keyboard = listKeyboard
-        print(data.size)
         return markup
     }
 }
