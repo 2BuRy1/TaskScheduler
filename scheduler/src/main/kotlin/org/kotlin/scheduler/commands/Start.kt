@@ -1,10 +1,11 @@
 package org.kotlin.scheduler.commands
 
 import org.kotlin.scheduler.managers.State
+import org.springframework.stereotype.Component
 import org.telegram.telegrambots.bots.DefaultAbsSender
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.Update
-
+@Component
 class Start : Command("/start", "Стартовая команда") {
 
 

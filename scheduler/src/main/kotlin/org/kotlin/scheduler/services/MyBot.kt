@@ -51,14 +51,16 @@ class MyBot(@Autowired val info: BotInfo, val resolver: CommandResolver, val sta
 
             val nextState = p0.let { command.sendMessage(this, it, currentState!!) }
 
+            if(nextState == State.FIRST_ASK) stateManager.removeFromCommands(p0.message.chatId)
+
+
             stateManager.addState(p0.message.chatId, nextState)
 
         }
 
-        else{
-            var callBack = p0?.callbackQuery
-            println(callBack?.message?.chatId)
-            println(callBack?.data)
+        else if(p0!!.hasCallbackQuery()){
+            val callBack = p0.callbackQuery
+
             val currentState: Optional<State> =callBack?.message?.chatId.let { stateManager.getStateByChatId(it!!) } as Optional<State>
             val currentOptionalOfCommand = callBack?.message?.chatId?.let { stateManager.getCommandByChatId(it) } as Optional<Command>
 
@@ -66,13 +68,12 @@ class MyBot(@Autowired val info: BotInfo, val resolver: CommandResolver, val sta
 
 
             val command: Command = currentOptionalOfCommand.get()
-            val nextState = p0?.let { command.sendMessage(this, it, currentState.get()) }
+            val nextState = p0.let { command.sendMessage(this, it, currentState.get()) }
 
 
             if(nextState == State.FIRST_ASK) stateManager.removeFromCommands(p0.message.chatId)
 
-
-            nextState?.let { stateManager.addState(callBack.message.chatId, it) }
+            nextState.let { stateManager.addState(callBack.message.chatId, it) }
         }
 
 

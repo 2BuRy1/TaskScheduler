@@ -1,10 +1,10 @@
 package org.kotlin.scheduler.managers
 
-enum class CallBackData(name: String) {
-    SCHEDULED("запустить по времени"), TIMER("запустить по таймеру");
+enum class CallBackData(val value: String) {
+    SCHEDULED("По времени 🕑"), TIMER("По таймеру ⌛️");
 
 
     override fun toString(): String {
-        return this.name
+        return this.value
     }
 }

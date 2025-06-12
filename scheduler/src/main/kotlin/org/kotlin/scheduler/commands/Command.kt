@@ -6,7 +6,7 @@ import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.bots.AbsSender
 import java.util.*
 
-sealed class Command(val name: String,val description: String) {
+abstract class Command(val name: String,val description: String) {
 
 
     abstract fun sendMessage(absSender: DefaultAbsSender, update: Update, state: State): State
