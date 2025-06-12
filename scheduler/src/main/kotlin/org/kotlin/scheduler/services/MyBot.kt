@@ -1,18 +1,23 @@
 package org.kotlin.scheduler.services
 
 import org.kotlin.scheduler.commands.Command
+import org.kotlin.scheduler.commands.Task
 import org.kotlin.scheduler.configurations.BotInfo
+import org.kotlin.scheduler.managers.CallBackData
 import org.kotlin.scheduler.managers.CommandResolver
 import org.kotlin.scheduler.managers.State
 import org.kotlin.scheduler.managers.StateManager
+import org.kotlin.scheduler.repositories.RedisRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.Update
+import java.text.SimpleDateFormat
 import java.util.Optional
 
 @Service
-class MyBot(@Autowired val info: BotInfo, val resolver: CommandResolver, val stateManager: StateManager): TelegramLongPollingBot(){
+class MyBot(@Autowired private val info: BotInfo, private val resolver: CommandResolver, private val stateManager: StateManager, private val redisRepository: RedisRepository): TelegramLongPollingBot(){
 
 
 
@@ -74,9 +79,7 @@ class MyBot(@Autowired val info: BotInfo, val resolver: CommandResolver, val sta
 
 
             if(nextState == State.FIRST_ASK) stateManager.removeFromCommands(p0.message.chatId)
-            else if(nextState == State.LAST_ASK){
-                //TODO build task data from redis and schedule tasks
-            }
+
 
 
 
@@ -84,8 +87,14 @@ class MyBot(@Autowired val info: BotInfo, val resolver: CommandResolver, val sta
         }
 
         else if(commandOption.isEmpty){
+            val currentState: State? = stateManager.getStateByChatId(p0.message.chatId)?.get()
+                currentState.let {
+                    stateManager.getCommandByChatId(p0.message.chatId).get().sendMessage(this, p0, it!!)
+                }
 
-            println(commandName)
+
+
+
 
 
 

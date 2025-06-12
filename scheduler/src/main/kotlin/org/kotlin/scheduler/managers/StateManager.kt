@@ -37,6 +37,10 @@ class StateManager {
         commandMap.remove(chatId)
     }
 
+    fun containsState(chatId: Long): Boolean{
+        return stateMap.containsKey(chatId)
+    }
+
 
 
 

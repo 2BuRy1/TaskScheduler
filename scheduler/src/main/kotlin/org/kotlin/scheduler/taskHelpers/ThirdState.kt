@@ -26,14 +26,17 @@ class ThirdState(override val supportedState: State = State.THIRD_ASK, @Autowire
 
         val timerType = CallBackData.valueOf(redisRepository.getData("${callBack.message.chatId}type"))
 
+
+
+
         val type = when(timerType){
-            CallBackData.SCHEDULED -> "будильник"
-            CallBackData.TIMER -> "таймер"
+            CallBackData.SCHEDULED -> "введите время в формате dd:mm:yyyy"
+            CallBackData.TIMER -> "введите время в минутах"
         }
 
 
 
-        result.text = "Круто, введите времечко =3, на которое вы бы хотели поставить на $type"
+        result.text = type
         result.chatId = callBack.message.chatId.toString()
         absSender.execute(deleteMessage)
 
