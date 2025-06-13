@@ -47,7 +47,7 @@ class MyBot(@Autowired private val info: BotInfo, private val resolver: CommandR
             val command : Command = commandOption.get()
 
 
-            if(stateManager.getCommandByChatId(p0.message.chatId).isEmpty) stateManager.addCommand(p0.message.chatId, command)
+            if(stateManager.getCommandByChatId(p0.message.chatId).isEmpty || !stateManager.containsCommand(p0.message.chatId)) stateManager.addCommand(p0.message.chatId, command)
 
 
 
@@ -88,8 +88,17 @@ class MyBot(@Autowired private val info: BotInfo, private val resolver: CommandR
 
         else if(commandOption.isEmpty){
             val currentState: State? = stateManager.getStateByChatId(p0.message.chatId)?.get()
-                currentState.let {
-                    stateManager.getCommandByChatId(p0.message.chatId).get().sendMessage(this, p0, it!!)
+
+            val commandOptional = stateManager.getCommandByChatId(p0.message.chatId)
+                if(commandOptional.isPresent) {
+
+
+                    val nextState: State? = currentState?.let { commandOptional.get().sendMessage(this, p0, it) }
+
+                    nextState?.let { stateManager.addState(p0.message.chatId, it) }
+
+                    if (nextState == State.FIRST_ASK) stateManager.removeFromCommands(p0.message.chatId)
+
                 }
 
 
